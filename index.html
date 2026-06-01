@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>난간대 VIV 설계 계산기</title>
+  <style>
+    :root {
+      --bg: #f5f7f8;
+      --panel: #ffffff;
+      --ink: #172126;
+      --muted: #637178;
+      --line: #d8e0e4;
+      --teal: #087f8c;
+      --red: #c84646;
+      --amber: #d98b20;
+      --green: #357a4f;
+      --blue: #2e6f9e;
+      --shadow: 0 18px 45px rgba(23, 33, 38, 0.09);
+      color-scheme: light;
+      font-family: Arial, "Noto Sans KR", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(310px, 390px) minmax(0, 1fr);
+    }
+
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+      padding: 24px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .unit-pill {
+      min-width: max-content;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #fbfcfc;
+    }
+
+    .controls {
+      display: grid;
+      gap: 20px;
+      padding-top: 22px;
+    }
+
+    .control-group {
+      display: grid;
+      gap: 12px;
+    }
+
+    .group-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #334047;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #eef3f5;
+    }
+
+    .segmented input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .segmented label {
+      min-height: 42px;
+      display: grid;
+      place-items: center;
+      color: #4a5960;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      border-right: 1px solid var(--line);
+    }
+
+    .segmented label:last-child {
+      border-right: 0;
+    }
+
+    .segmented input:checked + label {
+      background: var(--teal);
+      color: #ffffff;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 92px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .field label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: #334047;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .field .value {
+      color: var(--muted);
+      font-weight: 800;
+      min-width: max-content;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--teal);
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfc;
+      color: var(--ink);
+      padding: 8px 10px;
+      outline: none;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.12);
+    }
+
+    .geometry-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .geometry-panel[hidden] {
+      display: none;
+    }
+
+    .main {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .result-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 1px;
+      background: var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .metric {
+      min-height: 106px;
+      background: var(--panel);
+      padding: 18px;
+      display: grid;
+      align-content: center;
+      gap: 8px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .metric strong {
+      font-size: clamp(22px, 2.5vw, 34px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .metric small {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .metric.primary strong {
+      color: var(--teal);
+    }
+
+    .metric.warn strong {
+      color: var(--red);
+    }
+
+    .stage {
+      min-height: 0;
+      padding: 24px;
+      display: grid;
+      grid-template-rows: minmax(420px, 1fr) auto;
+      gap: 20px;
+    }
+
+    .visual-shell {
+      position: relative;
+      min-height: 420px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #eef3f5;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 420px;
+    }
+
+    .status {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .chip {
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 7px 11px;
+      color: #ffffff;
+      background: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 8px 20px rgba(23, 33, 38, 0.15);
+    }
+
+    .chip.resonance {
+      background: var(--red);
+    }
+
+    .chip.after {
+      background: var(--amber);
+    }
+
+    .chip.quiet {
+      background: var(--green);
+    }
+
+    .bar-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 210px;
+      gap: 18px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 18px;
+    }
+
+    .scale {
+      position: relative;
+      height: 44px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, rgba(53, 122, 79, 0.18), rgba(217, 139, 32, 0.2), rgba(200, 70, 70, 0.22));
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .marker {
+      position: absolute;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: var(--ink);
+      transform: translateX(-1px);
+    }
+
+    .marker.wind {
+      left: var(--wind-pct, 0%);
+      background: var(--blue);
+    }
+
+    .marker.vcr {
+      left: var(--vcr-pct, 50%);
+      background: var(--red);
+    }
+
+    .marker::after {
+      position: absolute;
+      top: 7px;
+      left: 8px;
+      min-width: max-content;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 4px 6px;
+      box-shadow: 0 4px 12px rgba(23, 33, 38, 0.08);
+    }
+
+    .marker.wind::after {
+      content: "풍속";
+    }
+
+    .marker.vcr::after {
+      content: "Vcr";
+    }
+
+    .bar-meta {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .bar-meta strong {
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.1;
+    }
+
+    .error {
+      min-height: 22px;
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+      }
+
+      .result-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .metric {
+        min-height: 92px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .sidebar,
+      .stage {
+        padding: 16px;
+      }
+
+      .controls,
+      .bar-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .result-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .field-row {
+        grid-template-columns: 1fr 86px;
+      }
+
+      .visual-shell,
+      canvas {
+        min-height: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>난간대 VIV 설계 계산기</h1>
+        <span class="unit-pill">m/s · mm · Hz</span>
+      </div>
+
+      <form class="controls" id="controls">
+        <section class="control-group">
+          <div class="group-title">접합부 연결</div>
+          <select id="bc">
+            <option value="semirigid-connection" selected>반강접 연결</option>
+            <option value="fixed-fixed">양단 강접</option>
+            <option value="pinned-pinned">양단 핀</option>
+            <option value="cantilever">캔틸레버</option>
+          </select>
+        </section>
+
+        <section class="control-group">
+          <div class="group-title">단면 형상</div>
+          <div class="segmented">
+            <input id="shapeCirc" type="radio" name="shape" value="circ" checked>
+            <label for="shapeCirc">원형</label>
+            <input id="shapeRect" type="radio" name="shape" value="rect">
+            <label for="shapeRect">각형</label>
+          </div>
+        </section>
+
+        <section class="control-group">
+          <div class="field" data-sync="length">
+            <label for="lengthRange">난간대 길이 <span class="value" id="lengthLabel">0.90 m</span></label>
+            <div class="field-row">
+              <input id="lengthRange" type="range" min="0.3" max="2.0" step="0.01" value="0.9">
+              <input id="lengthInput" type="number" min="0.3" max="2.0" step="0.01" value="0.9" aria-label="난간대 길이">
+            </div>
+          </div>
+        </section>
+
+        <section class="control-group">
+          <div class="field" data-sync="wind">
+            <label for="windRange">현재 풍속 <span class="value" id="windLabel">6.60 m/s</span></label>
+            <div class="field-row">
+              <input id="windRange" type="range" min="0" max="50" step="0.1" value="6.6">
+              <input id="windInput" type="number" min="0" max="50" step="0.1" value="6.6" aria-label="현재 풍속">
+            </div>
+          </div>
+        </section>
+
+        <section class="control-group geometry-panel" id="circPanel">
+          <div class="group-title">원형 치수</div>
+          <div class="field" data-sync="diameter">
+            <label for="diameterRange">직경 D <span class="value" id="diameterLabel">20.0 mm</span></label>
+            <div class="field-row">
+              <input id="diameterRange" type="range" min="8" max="80" step="0.1" value="20">
+              <input id="diameterInput" type="number" min="8" max="80" step="0.1" value="20" aria-label="직경">
+            </div>
+          </div>
+          <div class="field" data-sync="circThickness">
+            <label for="circThicknessRange">두께 t <span class="value" id="circThicknessLabel">0.7 mm</span></label>
+            <div class="field-row">
+              <input id="circThicknessRange" type="range" min="0.1" max="5" step="0.1" value="0.7">
+              <input id="circThicknessInput" type="number" min="0.1" max="5" step="0.1" value="0.7" aria-label="원형 두께">
+            </div>
+          </div>
+        </section>
+
+        <section class="control-group geometry-panel" id="rectPanel" hidden>
+          <div class="group-title">각형 치수</div>
+          <div class="field" data-sync="width">
+            <label for="widthRange">폭 B <span class="value" id="widthLabel">13.0 mm</span></label>
+            <div class="field-row">
+              <input id="widthRange" type="range" min="8" max="60" step="0.1" value="13">
+              <input id="widthInput" type="number" min="8" max="60" step="0.1" value="13" aria-label="폭">
+            </div>
+          </div>
+          <div class="field" data-sync="depth">
+            <label for="depthRange">깊이 D <span class="value" id="depthLabel">21.0 mm</span></label>
+            <div class="field-row">
+              <input id="depthRange" type="range" min="8" max="90" step="0.1" value="21">
+              <input id="depthInput" type="number" min="8" max="90" step="0.1" value="21" aria-label="깊이">
+            </div>
+          </div>
+          <div class="field" data-sync="rectThickness">
+            <label for="rectThicknessRange">두께 t <span class="value" id="rectThicknessLabel">0.8 mm</span></label>
+            <div class="field-row">
+              <input id="rectThicknessRange" type="range" min="0.1" max="5" step="0.1" value="0.8">
+              <input id="rectThicknessInput" type="number" min="0.1" max="5" step="0.1" value="0.8" aria-label="각형 두께">
+            </div>
+          </div>
+        </section>
+
+        <div class="error" id="errorText"></div>
+      </form>
+    </aside>
+
+    <section class="main">
+      <div class="result-strip">
+        <div class="metric primary">
+          <span>임계풍속 Vcr</span>
+          <strong id="vcrValue">0.00</strong>
+          <small>m/s</small>
+        </div>
+        <div class="metric warn">
+          <span>예상 최대진폭</span>
+          <strong id="ampValue">0.000</strong>
+          <small>mm</small>
+        </div>
+        <div class="metric">
+          <span>현재 풍속 시각화 진폭</span>
+          <strong id="liveAmpValue">0.000</strong>
+          <small>mm</small>
+        </div>
+        <div class="metric">
+          <span>고유주파수 fn</span>
+          <strong id="fnValue">0.00</strong>
+          <small>Hz</small>
+        </div>
+        <div class="metric">
+          <span>Scruton · St</span>
+          <strong id="scValue">0.0</strong>
+          <small id="stValue">St 0.000</small>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="visual-shell">
+          <canvas id="vivCanvas" aria-label="난간대 와류진동 시각화"></canvas>
+          <div class="status">
+            <span class="chip quiet" id="stateChip">공진 전</span>
+            <span class="chip" id="shapeChip">원형 D 20.0</span>
+          </div>
+        </div>
+
+        <div class="bar-panel">
+          <div class="scale" id="windScale">
+            <span class="marker wind"></span>
+            <span class="marker vcr"></span>
+          </div>
+          <div class="bar-meta">
+            <strong id="ratioValue">0.00 × Vcr</strong>
+            <span id="scaleValue">축 범위 45.0 m/s</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const RHO_AIR = 1.225;
+    const RHO_STEEL = 7850;
+    const ZETA = 0.001;
+    const BC_LAMBDA2 = {
+      "fixed-fixed": 22.37,
+      "semirigid-connection": 15.0505,
+      "pinned-pinned": 9.87,
+      "cantilever": 3.52
+    };
+    const BC_MODAL_MASS_RATIO = {
+      "fixed-fixed": 1.00,
+      "semirigid-connection": 0.95,
+      "pinned-pinned": 0.90,
+      "cantilever": 0.78
+    };
+    const DB_PTS = [0.0, 1.0, 2.0, 3.0, 3.5, 5.0, 10.0, 12.0];
+    const ST_PTS = [0.12, 0.12, 0.06, 0.06, 0.15, 0.11, 0.09, 0.09];
+
+    function getPropsRect(B, D, t) {
+      const area = B * D - (B - 2 * t) * (D - 2 * t);
+      const I = (D * Math.pow(B, 3) - (D - 2 * t) * Math.pow(B - 2 * t, 3)) / 12;
+      return { mass: RHO_STEEL * area, inertia: I };
+    }
+
+    function getPropsCirc(D, t) {
+      const area = Math.PI * (Math.pow(D / 2, 2) - Math.pow(D / 2 - t, 2));
+      const I = Math.PI / 64 * (Math.pow(D, 4) - Math.pow(D - 2 * t, 4));
+      return { mass: RHO_STEEL * area, inertia: I };
+    }
+
+    const ref = getPropsRect(0.010, 0.030, 0.0014);
+    const CAL_CONST_BASE = 73.62 / Math.sqrt(ref.inertia / ref.mass);
+
+    function calculateDynamicFn(mass, inertia, length, bc) {
+      const lambdaRatio = BC_LAMBDA2[bc] / BC_LAMBDA2["fixed-fixed"];
+      const lengthRatio = Math.pow(1.05 / length, 2);
+      return CAL_CONST_BASE * Math.sqrt(inertia / mass) * lambdaRatio * lengthRatio;
+    }
+
+    function circularCurve(sc) {
+      return 1.5 / Math.pow(1 + 0.5 * sc, 1.8) + 0.002;
+    }
+
+    function rectangularCurve(sc) {
+      return 2.0 / Math.pow(1 + 0.6 * sc, 1.5) + 0.005;
+    }
+
+    function interp(x, xs, ys) {
+      if (x <= xs[0]) return ys[0];
+      for (let i = 1; i < xs.length; i++) {
+        if (x <= xs[i]) {
+          const t = (x - xs[i - 1]) / (xs[i] - xs[i - 1]);
+          return ys[i - 1] + t * (ys[i] - ys[i - 1]);
+        }
+      }
+      return ys[ys.length - 1];
+    }
+
+    const els = {
+      bc: document.getElementById("bc"),
+      shapeCirc: document.getElementById("shapeCirc"),
+      shapeRect: document.getElementById("shapeRect"),
+      circPanel: document.getElementById("circPanel"),
+      rectPanel: document.getElementById("rectPanel"),
+      errorText: document.getElementById("errorText"),
+      vcrValue: document.getElementById("vcrValue"),
+      ampValue: document.getElementById("ampValue"),
+      liveAmpValue: document.getElementById("liveAmpValue"),
+      fnValue: document.getElementById("fnValue"),
+      scValue: document.getElementById("scValue"),
+      stValue: document.getElementById("stValue"),
+      ratioValue: document.getElementById("ratioValue"),
+      scaleValue: document.getElementById("scaleValue"),
+      windScale: document.getElementById("windScale"),
+      stateChip: document.getElementById("stateChip"),
+      shapeChip: document.getElementById("shapeChip"),
+      canvas: document.getElementById("vivCanvas")
+    };
+
+    const syncFields = {
+      length: { range: "lengthRange", input: "lengthInput", label: "lengthLabel", unit: "m", decimals: 2 },
+      wind: { range: "windRange", input: "windInput", label: "windLabel", unit: "m/s", decimals: 2 },
+      diameter: { range: "diameterRange", input: "diameterInput", label: "diameterLabel", unit: "mm", decimals: 1 },
+      circThickness: { range: "circThicknessRange", input: "circThicknessInput", label: "circThicknessLabel", unit: "mm", decimals: 1 },
+      width: { range: "widthRange", input: "widthInput", label: "widthLabel", unit: "mm", decimals: 1 },
+      depth: { range: "depthRange", input: "depthInput", label: "depthLabel", unit: "mm", decimals: 1 },
+      rectThickness: { range: "rectThicknessRange", input: "rectThicknessInput", label: "rectThicknessLabel", unit: "mm", decimals: 1 }
+    };
+
+    for (const spec of Object.values(syncFields)) {
+      spec.rangeEl = document.getElementById(spec.range);
+      spec.inputEl = document.getElementById(spec.input);
+      spec.labelEl = document.getElementById(spec.label);
+      const updatePair = source => {
+        const raw = Number(source.value);
+        const min = Number(source.min);
+        const max = Number(source.max);
+        const value = Math.min(max, Math.max(min, Number.isFinite(raw) ? raw : min));
+        spec.rangeEl.value = value;
+        spec.inputEl.value = value;
+        spec.labelEl.textContent = `${value.toFixed(spec.decimals)} ${spec.unit}`;
+        update();
+      };
+      spec.rangeEl.addEventListener("input", () => updatePair(spec.rangeEl));
+      spec.inputEl.addEventListener("input", () => updatePair(spec.inputEl));
+    }
+
+    els.bc.addEventListener("change", update);
+    els.shapeCirc.addEventListener("change", update);
+    els.shapeRect.addEventListener("change", update);
+
+    function value(name) {
+      return Number(syncFields[name].inputEl.value);
+    }
+
+    let current = null;
+
+    function calculate() {
+      const shape = els.shapeCirc.checked ? "circ" : "rect";
+      const bc = els.bc.value;
+      const length = value("length");
+      const wind = value("wind");
+      let B;
+      let D;
+      let t;
+      let props;
+      let st;
+      let label;
+      let error = "";
+
+      if (shape === "circ") {
+        B = value("diameter") / 1000;
+        D = B;
+        t = value("circThickness") / 1000;
+        if (2 * t >= D) error = "원형 두께는 직경의 절반보다 작아야 합니다.";
+        props = getPropsCirc(D, t);
+        st = 0.20;
+        label = `원형 D ${value("diameter").toFixed(1)}`;
+      } else {
+        B = value("width") / 1000;
+        D = value("depth") / 1000;
+        t = value("rectThickness") / 1000;
+        if (2 * t >= B || 2 * t >= D) error = "각형 두께는 폭과 깊이의 절반보다 작아야 합니다.";
+        props = getPropsRect(B, D, t);
+        st = interp(D / B, DB_PTS, ST_PTS);
+        label = `각형 ${value("width").toFixed(1)} × ${value("depth").toFixed(1)}`;
+      }
+
+      const valid = !error && props.mass > 0 && props.inertia > 0 && length > 0 && st > 0;
+      if (!valid) {
+        return {
+          valid,
+          error,
+          shape,
+          bc,
+          wind,
+          length,
+          B,
+          D,
+          t,
+          label,
+          fn: 0,
+          vcr: 0,
+          amp: 0,
+          liveAmp: 0,
+          sc: 0,
+          st: st || 0,
+          ratio: 0,
+          resonanceFactor: 0
+        };
+      }
+
+      const fn = calculateDynamicFn(props.mass, props.inertia, length, bc);
+      const modalMass = BC_MODAL_MASS_RATIO[bc];
+      const sc = 4 * Math.PI * props.mass * ZETA / (RHO_AIR * Math.pow(B, 2));
+      const scEff = sc * modalMass;
+      const aOverB = shape === "circ" ? circularCurve(scEff) : rectangularCurve(scEff);
+      const amp = aOverB * B * 1000;
+      const vcr = fn * B / st;
+      const detuning = Math.abs(wind - vcr) / Math.max(vcr, 0.001);
+      const resonanceFactor = wind <= 0 ? 0 : Math.exp(-Math.pow(detuning / 0.08, 2));
+      const liveAmp = amp * resonanceFactor;
+      const ratio = vcr > 0 ? wind / vcr : 0;
+
+      return {
+        valid,
+        error: "",
+        shape,
+        bc,
+        wind,
+        length,
+        B,
+        D,
+        t,
+        label,
+        fn,
+        vcr,
+        amp,
+        liveAmp,
+        sc,
+        st,
+        ratio,
+        resonanceFactor
+      };
+    }
+
+    function update() {
+      els.circPanel.hidden = !els.shapeCirc.checked;
+      els.rectPanel.hidden = els.shapeCirc.checked;
+      current = calculate();
+
+      els.errorText.textContent = current.error;
+      els.vcrValue.textContent = current.vcr.toFixed(2);
+      els.ampValue.textContent = current.amp.toFixed(3);
+      els.liveAmpValue.textContent = current.liveAmp.toFixed(3);
+      els.fnValue.textContent = current.fn.toFixed(2);
+      els.scValue.textContent = current.sc.toFixed(1);
+      els.stValue.textContent = `St ${current.st.toFixed(3)}`;
+      els.ratioValue.textContent = `${current.ratio.toFixed(2)} × Vcr`;
+      els.shapeChip.textContent = current.label;
+
+      const scaleMax = Math.max(45, current.wind, current.vcr * 1.2);
+      const windPct = Math.min(100, Math.max(0, current.wind / scaleMax * 100));
+      const vcrPct = Math.min(100, Math.max(0, current.vcr / scaleMax * 100));
+      els.windScale.style.setProperty("--wind-pct", `${windPct}%`);
+      els.windScale.style.setProperty("--vcr-pct", `${vcrPct}%`);
+      els.scaleValue.textContent = `축 범위 ${scaleMax.toFixed(1)} m/s`;
+
+      let chipText = "공진 전";
+      let chipClass = "chip quiet";
+      if (!current.valid) {
+        chipText = "입력 확인";
+        chipClass = "chip resonance";
+      } else if (Math.abs(current.ratio - 1) <= 0.05) {
+        chipText = "공진대";
+        chipClass = "chip resonance";
+      } else if (current.ratio > 1.05) {
+        chipText = "공진 후";
+        chipClass = "chip after";
+      }
+      els.stateChip.textContent = chipText;
+      els.stateChip.className = chipClass;
+    }
+
+    const ctx = els.canvas.getContext("2d");
+    let dpr = 1;
+
+    function resizeCanvas() {
+      const rect = els.canvas.getBoundingClientRect();
+      dpr = window.devicePixelRatio || 1;
+      els.canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      els.canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function drawSupport(ctx, x, y, type, side) {
+      ctx.save();
+      ctx.strokeStyle = "#334047";
+      ctx.fillStyle = "#ffffff";
+      ctx.lineWidth = 2;
+      if (type === "fixed") {
+        ctx.fillStyle = "#dfe7eb";
+        ctx.fillRect(x - 10, y - 78, 20, 156);
+        ctx.strokeRect(x - 10, y - 78, 20, 156);
+        for (let i = -70; i <= 70; i += 18) {
+          ctx.beginPath();
+          ctx.moveTo(x + (side === "left" ? -10 : 10), y + i);
+          ctx.lineTo(x + (side === "left" ? -24 : 24), y + i + 12);
+          ctx.stroke();
+        }
+      } else if (type === "pin") {
+        ctx.beginPath();
+        ctx.moveTo(x, y + 16);
+        ctx.lineTo(x - 24, y + 72);
+        ctx.lineTo(x + 24, y + 72);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x, y + 14, 8, 0, Math.PI * 2);
+        ctx.fillStyle = "#dfe7eb";
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function supportTypes(bc) {
+      if (bc === "fixed-fixed") return ["fixed", "fixed"];
+      if (bc === "pinned-pinned") return ["pin", "pin"];
+      if (bc === "cantilever") return ["fixed", "free"];
+      return ["fixed", "pin"];
+    }
+
+    function modeShape(s, bc) {
+      if (bc === "cantilever") return s * s * (3 - 2 * s);
+      if (bc === "fixed-fixed") return Math.pow(Math.sin(Math.PI * s), 2);
+      return Math.sin(Math.PI * s);
+    }
+
+    function drawWind(ctx, w, h, wind, time) {
+      const speed = Math.min(1.8, wind / 18);
+      ctx.save();
+      ctx.strokeStyle = "rgba(46, 111, 158, 0.38)";
+      ctx.fillStyle = "rgba(46, 111, 158, 0.38)";
+      ctx.lineWidth = 2;
+      for (let row = 0; row < 5; row++) {
+        const y = h * (0.22 + row * 0.13);
+        for (let i = 0; i < 8; i++) {
+          const x = ((i * 145 + time * 0.05 * (15 + wind) * speed) % (w + 180)) - 120;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + 70, y);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x + 70, y);
+          ctx.lineTo(x + 58, y - 6);
+          ctx.lineTo(x + 58, y + 6);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    function drawBeam(ctx, w, h, c, time) {
+      const left = w * 0.17;
+      const right = w * 0.82;
+      const centerY = h * 0.55;
+      const [leftSupport, rightSupport] = supportTypes(c.bc);
+      const phase = Math.sin(time * 0.006 * (0.45 + Math.min(2.5, c.wind / 10)));
+      const visualAmp = c.valid ? Math.min(88, Math.max(0, c.liveAmp * 24)) : 0;
+      const stroke = c.shape === "circ" ? Math.max(16, Math.min(42, c.B * 1200)) : Math.max(14, Math.min(46, c.D * 760));
+
+      drawSupport(ctx, left - 18, centerY, leftSupport, "left");
+      if (rightSupport !== "free") drawSupport(ctx, right + 18, centerY, rightSupport, "right");
+
+      ctx.save();
+      ctx.lineWidth = stroke;
+      ctx.lineCap = c.shape === "circ" ? "round" : "butt";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = c.shape === "circ" ? "#0b7f89" : "#b66a23";
+      ctx.shadowColor = "rgba(23, 33, 38, 0.18)";
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 8;
+      ctx.beginPath();
+      const n = 90;
+      for (let i = 0; i <= n; i++) {
+        const s = i / n;
+        const x = left + (right - left) * s;
+        const y = centerY + phase * visualAmp * modeShape(s, c.bc);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.shadowColor = "transparent";
+      ctx.lineWidth = Math.max(2, stroke * 0.18);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.48)";
+      ctx.beginPath();
+      for (let i = 0; i <= n; i++) {
+        const s = i / n;
+        const x = left + (right - left) * s;
+        const y = centerY - stroke * 0.22 + phase * visualAmp * modeShape(s, c.bc);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawCrossSection(ctx, w, h, c) {
+      const size = Math.min(180, Math.max(112, w * 0.18));
+      const cx = w - size * 0.68;
+      const cy = h - size * 0.62;
+      const maxDim = c.shape === "circ" ? c.B : Math.max(c.B, c.D);
+      const scale = size * 0.42 / Math.max(maxDim, 0.001);
+      const outerW = c.shape === "circ" ? c.B * scale : c.B * scale;
+      const outerH = c.shape === "circ" ? c.B * scale : c.D * scale;
+      const innerW = Math.max(0, outerW - c.t * scale * 2);
+      const innerH = Math.max(0, outerH - c.t * scale * 2);
+
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.82)";
+      ctx.strokeStyle = "rgba(216, 224, 228, 0.95)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(cx - size / 2, cy - size / 2, size, size, 8);
+      ctx.fill();
+      ctx.stroke();
+
+      if (c.shape === "circ") {
+        ctx.fillStyle = "#0b7f89";
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerW / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#eef3f5";
+        ctx.beginPath();
+        ctx.arc(cx, cy, innerW / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = "#b66a23";
+        ctx.fillRect(cx - outerW / 2, cy - outerH / 2, outerW, outerH);
+        ctx.fillStyle = "#eef3f5";
+        ctx.fillRect(cx - innerW / 2, cy - innerH / 2, innerW, innerH);
+      }
+
+      ctx.fillStyle = "#172126";
+      ctx.font = "700 12px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("단면", cx, cy + size / 2 - 18);
+      ctx.restore();
+    }
+
+    function drawBackground(ctx, w, h) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#eef3f5";
+      ctx.fillRect(0, 0, w, h);
+      ctx.save();
+      ctx.strokeStyle = "rgba(99, 113, 120, 0.16)";
+      ctx.lineWidth = 1;
+      for (let y = 40; y < h; y += 42) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+      for (let x = 40; x < w; x += 42) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function draw(time) {
+      const rect = els.canvas.getBoundingClientRect();
+      if (els.canvas.width !== Math.floor(rect.width * dpr) || els.canvas.height !== Math.floor(rect.height * dpr)) {
+        resizeCanvas();
+      }
+      const w = rect.width;
+      const h = rect.height;
+      drawBackground(ctx, w, h);
+      const c = current || calculate();
+      drawWind(ctx, w, h, c.wind, time);
+      drawBeam(ctx, w, h, c, time);
+      drawCrossSection(ctx, w, h, c);
+      requestAnimationFrame(draw);
+    }
+
+    update();
+    requestAnimationFrame(draw);
+  </script>
+</body>
+</html>
