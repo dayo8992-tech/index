@@ -673,18 +673,49 @@
       spec.rangeEl = document.getElementById(spec.range);
       spec.inputEl = document.getElementById(spec.input);
       spec.labelEl = document.getElementById(spec.label);
-      const updatePair = source => {
-        const raw = Number(source.value);
-        const min = Number(source.min);
-        const max = Number(source.max);
-        const value = Math.min(max, Math.max(min, Number.isFinite(raw) ? raw : min));
-        spec.rangeEl.value = value;
-        spec.inputEl.value = value;
+      spec.currentValue = Number(spec.inputEl.value);
+
+      const clampValue = raw => {
+        const min = Number(spec.inputEl.min);
+        const max = Number(spec.inputEl.max);
+        const parsed = Number(raw);
+        if (!Number.isFinite(parsed)) return spec.currentValue;
+        return Math.min(max, Math.max(min, parsed));
+      };
+
+      const renderValue = value => {
         spec.labelEl.textContent = `${value.toFixed(spec.decimals)} ${spec.unit}`;
+      };
+
+      const commitValue = (value, mirrorInput) => {
+        spec.currentValue = value;
+        spec.rangeEl.value = value;
+        if (mirrorInput) spec.inputEl.value = value;
+        renderValue(value);
         update();
       };
-      spec.rangeEl.addEventListener("input", () => updatePair(spec.rangeEl));
-      spec.inputEl.addEventListener("input", () => updatePair(spec.inputEl));
+
+      spec.rangeEl.addEventListener("input", () => {
+        commitValue(clampValue(spec.rangeEl.value), true);
+      });
+
+      spec.inputEl.addEventListener("input", () => {
+        const rawText = spec.inputEl.value.trim();
+        const parsed = Number(rawText);
+        const min = Number(spec.inputEl.min);
+        const max = Number(spec.inputEl.max);
+
+        if (rawText === "" || !Number.isFinite(parsed) || parsed < min || parsed > max) {
+          spec.labelEl.textContent = "입력 중";
+          return;
+        }
+
+        commitValue(parsed, false);
+      });
+
+      spec.inputEl.addEventListener("blur", () => {
+        commitValue(clampValue(spec.inputEl.value), true);
+      });
     }
 
     els.bc.addEventListener("change", update);
@@ -692,7 +723,7 @@
     els.shapeRect.addEventListener("change", update);
 
     function value(name) {
-      return Number(syncFields[name].inputEl.value);
+      return syncFields[name].currentValue;
     }
 
     let current = null;
@@ -838,31 +869,34 @@
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    function drawSupport(ctx, x, y, type, side) {
+    function drawEndSupport(ctx, x, y, type, position) {
       ctx.save();
       ctx.strokeStyle = "#334047";
       ctx.fillStyle = "#ffffff";
       ctx.lineWidth = 2;
       if (type === "fixed") {
         ctx.fillStyle = "#dfe7eb";
-        ctx.fillRect(x - 10, y - 78, 20, 156);
-        ctx.strokeRect(x - 10, y - 78, 20, 156);
+        ctx.fillRect(x - 78, y - 10, 156, 20);
+        ctx.strokeRect(x - 78, y - 10, 156, 20);
+        const hatchY = position === "top" ? y - 10 : y + 10;
+        const hatchDir = position === "top" ? -1 : 1;
         for (let i = -70; i <= 70; i += 18) {
           ctx.beginPath();
-          ctx.moveTo(x + (side === "left" ? -10 : 10), y + i);
-          ctx.lineTo(x + (side === "left" ? -24 : 24), y + i + 12);
+          ctx.moveTo(x + i, hatchY);
+          ctx.lineTo(x + i + 12, hatchY + hatchDir * 16);
           ctx.stroke();
         }
       } else if (type === "pin") {
+        const dir = position === "top" ? -1 : 1;
         ctx.beginPath();
-        ctx.moveTo(x, y + 16);
-        ctx.lineTo(x - 24, y + 72);
-        ctx.lineTo(x + 24, y + 72);
+        ctx.moveTo(x, y + dir * 15);
+        ctx.lineTo(x - 28, y + dir * 66);
+        ctx.lineTo(x + 28, y + dir * 66);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
         ctx.beginPath();
-        ctx.arc(x, y + 14, 8, 0, Math.PI * 2);
+        ctx.arc(x, y + dir * 14, 8, 0, Math.PI * 2);
         ctx.fillStyle = "#dfe7eb";
         ctx.fill();
         ctx.stroke();
@@ -873,12 +907,15 @@
     function supportTypes(bc) {
       if (bc === "fixed-fixed") return ["fixed", "fixed"];
       if (bc === "pinned-pinned") return ["pin", "pin"];
-      if (bc === "cantilever") return ["fixed", "free"];
-      return ["fixed", "pin"];
+      if (bc === "cantilever") return ["free", "fixed"];
+      return ["pin", "fixed"];
     }
 
     function modeShape(s, bc) {
-      if (bc === "cantilever") return s * s * (3 - 2 * s);
+      if (bc === "cantilever") {
+        const fromFixedEnd = 1 - s;
+        return fromFixedEnd * fromFixedEnd * (3 - 2 * fromFixedEnd);
+      }
       if (bc === "fixed-fixed") return Math.pow(Math.sin(Math.PI * s), 2);
       return Math.sin(Math.PI * s);
     }
@@ -909,16 +946,16 @@
     }
 
     function drawBeam(ctx, w, h, c, time) {
-      const left = w * 0.17;
-      const right = w * 0.82;
-      const centerY = h * 0.55;
-      const [leftSupport, rightSupport] = supportTypes(c.bc);
+      const top = h * 0.17;
+      const bottom = h * 0.80;
+      const centerX = w * 0.46;
+      const [topSupport, bottomSupport] = supportTypes(c.bc);
       const phase = Math.sin(time * 0.006 * (0.45 + Math.min(2.5, c.wind / 10)));
       const visualAmp = c.valid ? Math.min(88, Math.max(0, c.liveAmp * 24)) : 0;
-      const stroke = c.shape === "circ" ? Math.max(16, Math.min(42, c.B * 1200)) : Math.max(14, Math.min(46, c.D * 760));
+      const stroke = c.shape === "circ" ? Math.max(16, Math.min(42, c.B * 1200)) : Math.max(14, Math.min(46, Math.max(c.B, c.D) * 760));
 
-      drawSupport(ctx, left - 18, centerY, leftSupport, "left");
-      if (rightSupport !== "free") drawSupport(ctx, right + 18, centerY, rightSupport, "right");
+      if (topSupport !== "free") drawEndSupport(ctx, centerX, top - stroke * 0.68, topSupport, "top");
+      if (bottomSupport !== "free") drawEndSupport(ctx, centerX, bottom + stroke * 0.68, bottomSupport, "bottom");
 
       ctx.save();
       ctx.lineWidth = stroke;
@@ -932,8 +969,8 @@
       const n = 90;
       for (let i = 0; i <= n; i++) {
         const s = i / n;
-        const x = left + (right - left) * s;
-        const y = centerY + phase * visualAmp * modeShape(s, c.bc);
+        const x = centerX + phase * visualAmp * modeShape(s, c.bc);
+        const y = top + (bottom - top) * s;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
@@ -945,8 +982,8 @@
       ctx.beginPath();
       for (let i = 0; i <= n; i++) {
         const s = i / n;
-        const x = left + (right - left) * s;
-        const y = centerY - stroke * 0.22 + phase * visualAmp * modeShape(s, c.bc);
+        const x = centerX - stroke * 0.22 + phase * visualAmp * modeShape(s, c.bc);
+        const y = top + (bottom - top) * s;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
