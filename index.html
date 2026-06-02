@@ -444,8 +444,11 @@
           <div class="group-title">접합부 연결</div>
           <select id="bc">
             <option value="semirigid-connection" selected>반강접 연결</option>
+            <option value="semirigid-connection-10-reduced">반강접 연결 10% 저감</option>
             <option value="fixed-fixed">양단 강접</option>
+            <option value="fixed-fixed-10-reduced">양단 강접 10% 저감</option>
             <option value="pinned-pinned">양단 핀</option>
+            <option value="pinned-pinned-10-reduced">양단 핀 10% 저감</option>
             <option value="cantilever">캔틸레버</option>
           </select>
         </section>
@@ -587,12 +590,18 @@
       "fixed-fixed": 22.37,
       "semirigid-connection": 15.0505,
       "pinned-pinned": 9.87,
+      "semirigid-connection-10-reduced": 15.0505 * 0.9,
+      "fixed-fixed-10-reduced": 22.37 * 0.9,
+      "pinned-pinned-10-reduced": 9.87 * 0.9,
       "cantilever": 3.52
     };
     const BC_MODAL_MASS_RATIO = {
       "fixed-fixed": 1.00,
       "semirigid-connection": 0.95,
       "pinned-pinned": 0.90,
+      "semirigid-connection-10-reduced": 0.95,
+      "fixed-fixed-10-reduced": 1.00,
+      "pinned-pinned-10-reduced": 0.90,
       "cantilever": 0.78
     };
     const DB_PTS = [0.0, 1.0, 2.0, 3.0, 3.5, 5.0, 10.0, 12.0];
@@ -905,8 +914,8 @@
     }
 
     function supportTypes(bc) {
-      if (bc === "fixed-fixed") return ["fixed", "fixed"];
-      if (bc === "pinned-pinned") return ["pin", "pin"];
+      if (bc === "fixed-fixed" || bc === "fixed-fixed-10-reduced") return ["fixed", "fixed"];
+      if (bc === "pinned-pinned" || bc === "pinned-pinned-10-reduced") return ["pin", "pin"];
       if (bc === "cantilever") return ["free", "fixed"];
       return ["pin", "fixed"];
     }
@@ -916,7 +925,7 @@
         const fromFixedEnd = 1 - s;
         return fromFixedEnd * fromFixedEnd * (3 - 2 * fromFixedEnd);
       }
-      if (bc === "fixed-fixed") return Math.pow(Math.sin(Math.PI * s), 2);
+      if (bc === "fixed-fixed" || bc === "fixed-fixed-10-reduced") return Math.pow(Math.sin(Math.PI * s), 2);
       return Math.sin(Math.PI * s);
     }
 
