@@ -585,6 +585,7 @@
   <script>
     const RHO_AIR = 1.225;
     const RHO_STEEL = 7850;
+    const E_STEEL = 200e9;
     const ZETA = 0.001;
     const BC_LAMBDA2 = {
       "fixed-fixed": 22.37,
@@ -619,13 +620,8 @@
       return { mass: RHO_STEEL * area, inertia: I };
     }
 
-    const ref = getPropsRect(0.010, 0.030, 0.0014);
-    const CAL_CONST_BASE = 73.62 / Math.sqrt(ref.inertia / ref.mass);
-
     function calculateDynamicFn(mass, inertia, length, bc) {
-      const lambdaRatio = BC_LAMBDA2[bc] / BC_LAMBDA2["fixed-fixed"];
-      const lengthRatio = Math.pow(1.05 / length, 2);
-      return CAL_CONST_BASE * Math.sqrt(inertia / mass) * lambdaRatio * lengthRatio;
+      return BC_LAMBDA2[bc] / (2 * Math.PI * Math.pow(length, 2)) * Math.sqrt(E_STEEL * inertia / mass);
     }
 
     function circularCurve(sc) {
