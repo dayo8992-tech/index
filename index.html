@@ -16,6 +16,7 @@
       --amber: #d98b20;
       --green: #357a4f;
       --blue: #2e6f9e;
+      --violet: #6f4aa6;
       --shadow: 0 18px 45px rgba(23, 33, 38, 0.09);
       color-scheme: light;
       font-family: Arial, "Noto Sans KR", sans-serif;
@@ -39,9 +40,11 @@
     }
 
     .app {
-      min-height: 100vh;
+      height: 100vh;
+      min-height: 620px;
       display: grid;
       grid-template-columns: minmax(310px, 390px) minmax(0, 1fr);
+      overflow: hidden;
     }
 
     .sidebar {
@@ -191,42 +194,45 @@
 
     .main {
       min-width: 0;
+      min-height: 0;
+      height: 100vh;
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
+      overflow: hidden;
     }
 
     .result-strip {
       display: grid;
-      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      grid-template-columns: repeat(8, minmax(112px, 1fr));
       gap: 1px;
       background: var(--line);
       border-bottom: 1px solid var(--line);
     }
 
     .metric {
-      min-height: 106px;
+      min-height: clamp(76px, 10vh, 94px);
       background: var(--panel);
-      padding: 18px;
+      padding: 12px 14px;
       display: grid;
       align-content: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .metric span {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
     }
 
     .metric strong {
-      font-size: clamp(22px, 2.5vw, 34px);
+      font-size: clamp(20px, 2.15vw, 30px);
       line-height: 1;
       letter-spacing: 0;
     }
 
     .metric small {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
     }
 
@@ -238,17 +244,36 @@
       color: var(--red);
     }
 
+    .metric.screening strong {
+      font-size: clamp(16px, 1.45vw, 22px);
+      line-height: 1.15;
+    }
+
+    .metric.low strong {
+      color: var(--green);
+    }
+
+    .metric.limited strong {
+      color: var(--amber);
+    }
+
+    .metric.review strong {
+      color: var(--red);
+    }
+
     .stage {
       min-height: 0;
-      padding: 24px;
+      padding: clamp(14px, 1.8vh, 20px);
       display: grid;
-      grid-template-rows: minmax(420px, 1fr) auto;
-      gap: 20px;
+      grid-template-rows: minmax(240px, 1fr) auto auto;
+      gap: clamp(10px, 1.4vh, 16px);
+      overflow: hidden;
     }
 
     .visual-shell {
       position: relative;
-      min-height: 420px;
+      min-height: 0;
+      height: 100%;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #eef3f5;
@@ -260,28 +285,28 @@
       display: block;
       width: 100%;
       height: 100%;
-      min-height: 420px;
+      min-height: 0;
     }
 
     .status {
       position: absolute;
-      top: 18px;
-      left: 18px;
+      top: 14px;
+      left: 14px;
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       pointer-events: none;
     }
 
     .chip {
-      min-height: 32px;
+      min-height: 28px;
       display: inline-flex;
       align-items: center;
       border-radius: 999px;
-      padding: 7px 11px;
+      padding: 5px 9px;
       color: #ffffff;
       background: var(--blue);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       box-shadow: 0 8px 20px rgba(23, 33, 38, 0.15);
     }
@@ -300,18 +325,18 @@
 
     .bar-panel {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 210px;
-      gap: 18px;
+      grid-template-columns: minmax(0, 1fr) 180px;
+      gap: 14px;
       align-items: center;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
-      padding: 18px;
+      padding: 12px;
     }
 
     .scale {
       position: relative;
-      height: 44px;
+      height: 38px;
       border-radius: 8px;
       background: linear-gradient(90deg, rgba(53, 122, 79, 0.18), rgba(217, 139, 32, 0.2), rgba(200, 70, 70, 0.22));
       border: 1px solid var(--line);
@@ -362,16 +387,149 @@
 
     .bar-meta {
       display: grid;
-      gap: 7px;
+      gap: 5px;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
     }
 
     .bar-meta strong {
       color: var(--ink);
-      font-size: 18px;
+      font-size: 16px;
       line-height: 1.1;
+    }
+
+    .screening-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.9fr);
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 12px;
+    }
+
+    .screening-summary {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .screening-summary strong {
+      font-size: clamp(18px, 1.8vw, 24px);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .screening-summary.low strong {
+      color: var(--green);
+    }
+
+    .screening-summary.limited strong {
+      color: var(--amber);
+    }
+
+    .screening-summary.review strong {
+      color: var(--red);
+    }
+
+    .screening-summary p,
+    .report-copy {
+      margin: 0;
+      color: #435159;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .screening-facts {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .fact {
+      min-height: 54px;
+      display: grid;
+      align-content: center;
+      gap: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfc;
+      padding: 8px 10px;
+    }
+
+    .fact span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .fact strong {
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.1;
+    }
+
+    .criteria-panel {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .formula {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f6faf9;
+      color: var(--teal);
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .criteria-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .criteria-table th,
+    .criteria-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+
+    .criteria-table th {
+      color: var(--muted);
+      background: #f5f8f9;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .criteria-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .criteria-table td:first-child {
+      color: #334047;
+      text-align: right;
+      white-space: nowrap;
     }
 
     .error {
@@ -383,7 +541,19 @@
 
     @media (max-width: 980px) {
       .app {
+        height: auto;
+        min-height: 100vh;
         grid-template-columns: 1fr;
+        overflow: visible;
+      }
+
+      .main {
+        height: auto;
+        overflow: visible;
+      }
+
+      .stage {
+        overflow: visible;
       }
 
       .sidebar {
@@ -412,8 +582,13 @@
       }
 
       .controls,
+      .screening-panel,
       .bar-panel {
         grid-template-columns: 1fr;
+      }
+
+      .screening-facts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .result-strip {
@@ -473,16 +648,6 @@
           </div>
         </section>
 
-        <section class="control-group">
-          <div class="field" data-sync="wind">
-            <label for="windRange">현재 풍속 <span class="value" id="windLabel">6.60 m/s</span></label>
-            <div class="field-row">
-              <input id="windRange" type="range" min="0" max="50" step="0.1" value="6.6">
-              <input id="windInput" type="number" min="0" max="50" step="0.1" value="6.6" aria-label="현재 풍속">
-            </div>
-          </div>
-        </section>
-
         <section class="control-group geometry-panel" id="circPanel">
           <div class="group-title">원형 치수</div>
           <div class="field" data-sync="diameter">
@@ -526,6 +691,110 @@
           </div>
         </section>
 
+        <section class="control-group">
+          <div class="field" data-sync="wind">
+            <label for="windRange">풍속 <span class="value" id="windLabel">6.60 m/s</span></label>
+            <div class="field-row">
+              <input id="windRange" type="range" min="0" max="50" step="0.1" value="6.6">
+              <input id="windInput" type="number" min="0" max="50" step="0.1" value="6.6" aria-label="풍속">
+            </div>
+          </div>
+        </section>
+
+        <section class="control-group">
+          <div class="group-title">Weibull 공진대역 1차 검토</div>
+          <div class="field">
+            <label for="regionWind">지역 평균풍속 <span class="value" id="regionWindLabel">부산 3.5 m/s</span></label>
+            <select id="regionWind">
+              <optgroup label="수도권">
+                <option value="seoul">서울 2.3 m/s</option>
+                <option value="incheon">인천 2.9 m/s</option>
+                <option value="ganghwa">강화 1.9 m/s</option>
+                <option value="baengnyeongdo">백령도 4.4 m/s</option>
+                <option value="suwon">수원 1.7 m/s</option>
+                <option value="yangpyeong">양평 1.3 m/s</option>
+                <option value="icheon">이천 1.3 m/s</option>
+                <option value="dongducheon">동두천 1.5 m/s</option>
+                <option value="paju">파주 1.6 m/s</option>
+              </optgroup>
+              <optgroup label="부산·울산·경남">
+                <option value="busan" selected>부산 3.5 m/s</option>
+                <option value="ulsan">울산 2.1 m/s</option>
+                <option value="changwon">창원 2.0 m/s</option>
+                <option value="tongyeong">통영 2.5 m/s</option>
+                <option value="jinju">진주 1.4 m/s</option>
+                <option value="miryang">밀양 1.4 m/s</option>
+                <option value="geochang">거창 1.3 m/s</option>
+                <option value="sancheong">산청 1.7 m/s</option>
+                <option value="hapcheon">합천 1.3 m/s</option>
+                <option value="geoje">거제 1.7 m/s</option>
+                <option value="namhae">남해 1.6 m/s</option>
+              </optgroup>
+              <optgroup label="전북">
+                <option value="jeonbuk">전북특별자치도 1.7 m/s</option>
+                <option value="jeonju">전주 1.7 m/s</option>
+                <option value="gunsan">군산 3.0 m/s</option>
+                <option value="buan">부안 1.6 m/s</option>
+                <option value="jeongeup">정읍 1.2 m/s</option>
+                <option value="imsil">임실 1.3 m/s</option>
+                <option value="namwon">남원 1.4 m/s</option>
+                <option value="jangsu">장수 1.7 m/s</option>
+              </optgroup>
+              <optgroup label="제주">
+                <option value="jeju">제주 3.3 m/s</option>
+                <option value="gosan">고산 6.8 m/s</option>
+                <option value="seongsan">성산 3.1 m/s</option>
+                <option value="seogwipo">서귀포 2.5 m/s</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="field" data-sync="meanWind">
+            <label for="meanWindRange">기준 평균풍속 <span class="value" id="meanWindLabel">3.5 m/s</span></label>
+            <div class="field-row">
+              <input id="meanWindRange" type="range" min="0.1" max="15" step="0.1" value="3.5">
+              <input id="meanWindInput" type="number" min="0.1" max="15" step="0.1" value="3.5" aria-label="기준 평균풍속">
+            </div>
+          </div>
+          <div class="field" data-sync="targetHeight">
+            <label for="targetHeightRange">대상 높이 z <span class="value" id="targetHeightLabel">20.0 m</span></label>
+            <div class="field-row">
+              <input id="targetHeightRange" type="range" min="2" max="300" step="0.5" value="20">
+              <input id="targetHeightInput" type="number" min="2" max="300" step="0.5" value="20" aria-label="대상 높이">
+            </div>
+          </div>
+          <div class="field" data-sync="refHeight">
+            <label for="refHeightRange">기준 높이 z0 <span class="value" id="refHeightLabel">10.0 m</span></label>
+            <div class="field-row">
+              <input id="refHeightRange" type="range" min="2" max="50" step="0.5" value="10">
+              <input id="refHeightInput" type="number" min="2" max="50" step="0.5" value="10" aria-label="기준 높이">
+            </div>
+          </div>
+          <div class="field">
+            <label for="roughness">지표면 조도 승수 <span class="value" id="roughnessLabel">α 0.22</span></label>
+            <select id="roughness">
+              <option value="0.10">해안·평탄 수면 α=0.10</option>
+              <option value="0.14">개활지 α=0.14</option>
+              <option value="0.18">교외·저층 α=0.18</option>
+              <option value="0.22" selected>도심지역 α=0.22</option>
+              <option value="0.30">고밀도 도심 α=0.30</option>
+            </select>
+          </div>
+          <div class="field" data-sync="weibullK">
+            <label for="weibullKRange">Weibull 형상계수 k <span class="value" id="weibullKLabel">2.00</span></label>
+            <div class="field-row">
+              <input id="weibullKRange" type="range" min="0.8" max="5" step="0.05" value="2">
+              <input id="weibullKInput" type="number" min="0.8" max="5" step="0.05" value="2" aria-label="Weibull 형상계수">
+            </div>
+          </div>
+          <div class="field" data-sync="bandwidth">
+            <label for="bandwidthRange">공진대역 폭 ± <span class="value" id="bandwidthLabel">5.0 %</span></label>
+            <div class="field-row">
+              <input id="bandwidthRange" type="range" min="1" max="30" step="0.5" value="5">
+              <input id="bandwidthInput" type="number" min="1" max="30" step="0.5" value="5" aria-label="공진대역 폭">
+            </div>
+          </div>
+        </section>
+
         <div class="error" id="errorText"></div>
       </form>
     </aside>
@@ -537,13 +806,28 @@
           <strong id="vcrValue">0.00</strong>
           <small>m/s</small>
         </div>
+        <div class="metric" id="tcrMetric">
+          <span>공진대역 산정시간 Tcr</span>
+          <strong id="tcrValue">0.00</strong>
+          <small>h/year</small>
+        </div>
+        <div class="metric screening" id="screeningMetric">
+          <span>Weibull 1차 판정</span>
+          <strong id="screeningValue">-</strong>
+          <small id="screeningDetail">산정 전</small>
+        </div>
+        <div class="metric">
+          <span>Weibull c-scale</span>
+          <strong id="cScaleValue">0.00</strong>
+          <small>m/s</small>
+        </div>
         <div class="metric warn">
           <span>예상 최대진폭</span>
           <strong id="ampValue">0.000</strong>
           <small>mm</small>
         </div>
         <div class="metric">
-          <span>현재 풍속 시각화 진폭</span>
+          <span>현재 풍속 진폭</span>
           <strong id="liveAmpValue">0.000</strong>
           <small>mm</small>
         </div>
@@ -565,6 +849,59 @@
           <div class="status">
             <span class="chip quiet" id="stateChip">공진 전</span>
             <span class="chip" id="shapeChip">원형 D 20.0</span>
+          </div>
+        </div>
+
+        <div class="screening-panel">
+          <div class="screening-summary low" id="screeningSummary">
+            <span class="eyebrow">WEIBULL 1차 스크리닝</span>
+            <strong id="screeningTitle">발생 가능성 낮음</strong>
+            <p id="screeningText">공진대역 산정시간은 실제 와류진동 발생시간이 아니라 대상 높이 풍속이 임계풍속 주변 대역에 들어올 가능성을 시간으로 환산한 1차 스크리닝 지표입니다.</p>
+            <div class="screening-facts">
+              <div class="fact">
+                <span>높이보정 평균풍속</span>
+                <strong id="meanHeightValue">0.00 m/s</strong>
+              </div>
+              <div class="fact">
+                <span>멱급수 보정계수</span>
+                <strong id="heightFactorValue">0.000</strong>
+              </div>
+              <div class="fact">
+                <span>공진대역 확률</span>
+                <strong id="exceedProbValue">0.000%</strong>
+              </div>
+              <div class="fact">
+                <span>공진대역 범위</span>
+                <strong id="bandRangeValue">0.0~0.0</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="criteria-panel">
+            <div class="formula">Tcr = 8760 · [F(Vhigh) - F(Vlow)], F(v)=1-exp[-(v/c)<sup>k</sup>]</div>
+            <table class="criteria-table" aria-label="공진대역 산정시간 1차 판정 기준">
+              <thead>
+                <tr>
+                  <th>Tcr</th>
+                  <th>1차 판정</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>&lt; 10 h/year</td>
+                  <td>발생 가능성 낮음</td>
+                </tr>
+                <tr>
+                  <td>10 ≤ Tcr &lt; 100 h/year</td>
+                  <td>발생 가능성 제한적</td>
+                </tr>
+                <tr>
+                  <td>≥ 100 h/year</td>
+                  <td>상세검토 필요</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="report-copy" id="reportText">본 검토에서는 기상청 평균풍속 자료를 대상 높이로 보정한 후, 와이블분포를 적용하여 난간 부재별 임계풍속 주변 공진대역 시간을 산정하였다.</p>
           </div>
         </div>
 
@@ -607,6 +944,41 @@
     };
     const DB_PTS = [0.0, 1.0, 2.0, 3.0, 3.5, 5.0, 10.0, 12.0];
     const ST_PTS = [0.12, 0.12, 0.06, 0.06, 0.15, 0.11, 0.09, 0.09];
+    const HOURS_PER_YEAR = 8760;
+    const REGION_WINDS = {
+      seoul: { name: "서울", wind: 2.3 },
+      incheon: { name: "인천", wind: 2.9 },
+      ganghwa: { name: "강화", wind: 1.9 },
+      baengnyeongdo: { name: "백령도", wind: 4.4 },
+      suwon: { name: "수원", wind: 1.7 },
+      yangpyeong: { name: "양평", wind: 1.3 },
+      icheon: { name: "이천", wind: 1.3 },
+      dongducheon: { name: "동두천", wind: 1.5 },
+      paju: { name: "파주", wind: 1.6 },
+      busan: { name: "부산", wind: 3.5 },
+      ulsan: { name: "울산", wind: 2.1 },
+      changwon: { name: "창원", wind: 2.0 },
+      tongyeong: { name: "통영", wind: 2.5 },
+      jinju: { name: "진주", wind: 1.4 },
+      miryang: { name: "밀양", wind: 1.4 },
+      geochang: { name: "거창", wind: 1.3 },
+      sancheong: { name: "산청", wind: 1.7 },
+      hapcheon: { name: "합천", wind: 1.3 },
+      geoje: { name: "거제", wind: 1.7 },
+      namhae: { name: "남해", wind: 1.6 },
+      jeonbuk: { name: "전북특별자치도", wind: 1.7 },
+      jeonju: { name: "전주", wind: 1.7 },
+      gunsan: { name: "군산", wind: 3.0 },
+      buan: { name: "부안", wind: 1.6 },
+      jeongeup: { name: "정읍", wind: 1.2 },
+      imsil: { name: "임실", wind: 1.3 },
+      namwon: { name: "남원", wind: 1.4 },
+      jangsu: { name: "장수", wind: 1.7 },
+      jeju: { name: "제주", wind: 3.3 },
+      gosan: { name: "고산", wind: 6.8 },
+      seongsan: { name: "성산", wind: 3.1 },
+      seogwipo: { name: "서귀포", wind: 2.5 }
+    };
 
     function getPropsRect(B, D, t) {
       const area = B * D - (B - 2 * t) * (D - 2 * t);
@@ -643,14 +1015,145 @@
       return ys[ys.length - 1];
     }
 
+    function gamma(z) {
+      const p = [
+        676.5203681218851,
+        -1259.1392167224028,
+        771.3234287776531,
+        -176.6150291621406,
+        12.507343278686905,
+        -0.13857109526572012,
+        9.984369578019572e-6,
+        1.5056327351493116e-7
+      ];
+      if (z < 0.5) {
+        return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+      }
+      let x = 0.9999999999998099;
+      const g = 7;
+      z -= 1;
+      for (let i = 0; i < p.length; i++) {
+        x += p[i] / (z + i + 1);
+      }
+      const t = z + g + 0.5;
+      return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+    }
+
+    function weibullCdf(v, k, c) {
+      if (v <= 0 || k <= 0 || c <= 0) return 0;
+      return 1 - Math.exp(-Math.pow(v / c, k));
+    }
+
+    function classifyScreening(tcr, valid) {
+      if (!valid) {
+        return {
+          key: "review",
+          label: "입력 확인",
+          detail: "계산 불가",
+          text: "단면 치수와 Weibull 입력값을 확인해야 공진대역 산정시간을 계산할 수 있습니다."
+        };
+      }
+      if (tcr < 10) {
+        return {
+          key: "low",
+          label: "발생 가능성 낮음",
+          detail: "Tcr < 10 h/year",
+          text: "임계풍속 주변 공진대역 시간이 10 h/year 미만으로 산정되어 1차 검토상 발생 가능성이 낮은 구간입니다."
+        };
+      }
+      if (tcr < 100) {
+        return {
+          key: "limited",
+          label: "발생 가능성 제한적",
+          detail: "10 ≤ Tcr < 100 h/year",
+          text: "임계풍속 주변 공진대역 시간이 10~100 h/year 범위로 산정되어 발생 가능성이 제한적인 구간입니다."
+        };
+      }
+      return {
+        key: "review",
+        label: "상세검토 필요",
+        detail: "Tcr ≥ 100 h/year",
+        text: "임계풍속 주변 공진대역 시간이 100 h/year 이상으로 산정되어 응답 기반 상세검토가 필요한 구간입니다."
+      };
+    }
+
+    function formatHours(hours) {
+      if (!Number.isFinite(hours)) return "0.000";
+      if (hours >= 1000) return hours.toFixed(0);
+      if (hours >= 100) return hours.toFixed(1);
+      if (hours >= 1) return hours.toFixed(2);
+      return hours.toFixed(3);
+    }
+
+    function formatPercent(probability) {
+      const percent = probability * 100;
+      if (!Number.isFinite(percent)) return "0.000%";
+      if (percent > 0 && percent < 0.001) return "<0.001%";
+      if (percent >= 10) return `${percent.toFixed(2)}%`;
+      return `${percent.toFixed(3)}%`;
+    }
+
+    function calculateWeibullStats(vcr) {
+      const region = REGION_WINDS[els.regionWind.value] || REGION_WINDS.busan;
+      const meanWindRef = value("meanWind");
+      const targetHeight = value("targetHeight");
+      const refHeight = value("refHeight");
+      const alpha = Number(els.roughness.value);
+      const k = Math.max(0.001, value("weibullK"));
+      const bandwidthPercent = value("bandwidth");
+      const bandwidth = bandwidthPercent / 100;
+      const heightFactor = Math.pow(targetHeight / refHeight, alpha);
+      const meanWindHeight = meanWindRef * heightFactor;
+      const cScale = meanWindHeight / gamma(1 + 1 / k);
+      const valid = vcr > 0 && cScale > 0 && Number.isFinite(cScale);
+      const vLow = valid ? vcr * (1 - bandwidth) : 0;
+      const vHigh = valid ? vcr * (1 + bandwidth) : 0;
+      const exceedProb = valid ? weibullCdf(vHigh, k, cScale) - weibullCdf(vLow, k, cScale) : 0;
+      const tcr = HOURS_PER_YEAR * exceedProb;
+
+      return {
+        regionName: region.name,
+        regionMean: region.wind,
+        meanWindRef,
+        targetHeight,
+        refHeight,
+        alpha,
+        k,
+        bandwidthPercent,
+        bandwidth,
+        heightFactor,
+        meanWindHeight,
+        cScale,
+        vLow,
+        vHigh,
+        exceedProb,
+        tcr,
+        screening: classifyScreening(tcr, valid)
+      };
+    }
+
+    function reportText(c) {
+      return `본 검토에서는 ${c.regionName} 평균풍속 ${c.meanWindRef.toFixed(1)} m/s를 기준높이 ${c.refHeight.toFixed(1)} m에서 대상높이 ${c.targetHeight.toFixed(1)} m로 보정한 후, 와이블분포(k=${c.k.toFixed(2)}, c=${c.cScale.toFixed(2)} m/s)를 적용하여 임계풍속 주변 ±${c.bandwidthPercent.toFixed(1)}% 공진대역(${c.vLow.toFixed(2)}~${c.vHigh.toFixed(2)} m/s)에 해당하는 연간 시간 Tcr=${formatHours(c.tcr)} h/year를 산정하였다. 산정된 시간은 실제 와류진동 발생시간이 아니라 공진대역 도달 가능성에 대한 1차 스크리닝 지표이며, 본 기준에서는 ${c.screening.label}로 분류된다.`;
+    }
+
     const els = {
       bc: document.getElementById("bc"),
       shapeCirc: document.getElementById("shapeCirc"),
       shapeRect: document.getElementById("shapeRect"),
+      regionWind: document.getElementById("regionWind"),
+      regionWindLabel: document.getElementById("regionWindLabel"),
+      roughness: document.getElementById("roughness"),
+      roughnessLabel: document.getElementById("roughnessLabel"),
       circPanel: document.getElementById("circPanel"),
       rectPanel: document.getElementById("rectPanel"),
       errorText: document.getElementById("errorText"),
       vcrValue: document.getElementById("vcrValue"),
+      tcrMetric: document.getElementById("tcrMetric"),
+      tcrValue: document.getElementById("tcrValue"),
+      screeningMetric: document.getElementById("screeningMetric"),
+      screeningValue: document.getElementById("screeningValue"),
+      screeningDetail: document.getElementById("screeningDetail"),
+      cScaleValue: document.getElementById("cScaleValue"),
       ampValue: document.getElementById("ampValue"),
       liveAmpValue: document.getElementById("liveAmpValue"),
       fnValue: document.getElementById("fnValue"),
@@ -661,12 +1164,25 @@
       windScale: document.getElementById("windScale"),
       stateChip: document.getElementById("stateChip"),
       shapeChip: document.getElementById("shapeChip"),
+      screeningSummary: document.getElementById("screeningSummary"),
+      screeningTitle: document.getElementById("screeningTitle"),
+      screeningText: document.getElementById("screeningText"),
+      meanHeightValue: document.getElementById("meanHeightValue"),
+      heightFactorValue: document.getElementById("heightFactorValue"),
+      exceedProbValue: document.getElementById("exceedProbValue"),
+      bandRangeValue: document.getElementById("bandRangeValue"),
+      reportText: document.getElementById("reportText"),
       canvas: document.getElementById("vivCanvas")
     };
 
     const syncFields = {
       length: { range: "lengthRange", input: "lengthInput", label: "lengthLabel", unit: "m", decimals: 2 },
       wind: { range: "windRange", input: "windInput", label: "windLabel", unit: "m/s", decimals: 2 },
+      meanWind: { range: "meanWindRange", input: "meanWindInput", label: "meanWindLabel", unit: "m/s", decimals: 1 },
+      targetHeight: { range: "targetHeightRange", input: "targetHeightInput", label: "targetHeightLabel", unit: "m", decimals: 1 },
+      refHeight: { range: "refHeightRange", input: "refHeightInput", label: "refHeightLabel", unit: "m", decimals: 1 },
+      weibullK: { range: "weibullKRange", input: "weibullKInput", label: "weibullKLabel", unit: "", decimals: 2 },
+      bandwidth: { range: "bandwidthRange", input: "bandwidthInput", label: "bandwidthLabel", unit: "%", decimals: 1 },
       diameter: { range: "diameterRange", input: "diameterInput", label: "diameterLabel", unit: "mm", decimals: 1 },
       circThickness: { range: "circThicknessRange", input: "circThicknessInput", label: "circThicknessLabel", unit: "mm", decimals: 1 },
       width: { range: "widthRange", input: "widthInput", label: "widthLabel", unit: "mm", decimals: 1 },
@@ -689,7 +1205,7 @@
       };
 
       const renderValue = value => {
-        spec.labelEl.textContent = `${value.toFixed(spec.decimals)} ${spec.unit}`;
+        spec.labelEl.textContent = spec.unit ? `${value.toFixed(spec.decimals)} ${spec.unit}` : value.toFixed(spec.decimals);
       };
 
       const commitValue = (value, mirrorInput) => {
@@ -698,6 +1214,10 @@
         if (mirrorInput) spec.inputEl.value = value;
         renderValue(value);
         update();
+      };
+
+      spec.setValue = value => {
+        commitValue(clampValue(value), true);
       };
 
       spec.rangeEl.addEventListener("input", () => {
@@ -726,6 +1246,11 @@
     els.bc.addEventListener("change", update);
     els.shapeCirc.addEventListener("change", update);
     els.shapeRect.addEventListener("change", update);
+    els.regionWind.addEventListener("change", () => {
+      const region = REGION_WINDS[els.regionWind.value] || REGION_WINDS.busan;
+      syncFields.meanWind.setValue(region.wind);
+    });
+    els.roughness.addEventListener("change", update);
 
     function value(name) {
       return syncFields[name].currentValue;
@@ -766,6 +1291,7 @@
 
       const valid = !error && props.mass > 0 && props.inertia > 0 && length > 0 && st > 0;
       if (!valid) {
+        const weibull = calculateWeibullStats(0);
         return {
           valid,
           error,
@@ -784,7 +1310,8 @@
           sc: 0,
           st: st || 0,
           ratio: 0,
-          resonanceFactor: 0
+          resonanceFactor: 0,
+          ...weibull
         };
       }
 
@@ -799,6 +1326,7 @@
       const resonanceFactor = wind <= 0 ? 0 : Math.exp(-Math.pow(detuning / 0.08, 2));
       const liveAmp = amp * resonanceFactor;
       const ratio = vcr > 0 ? wind / vcr : 0;
+      const weibull = calculateWeibullStats(vcr);
 
       return {
         valid,
@@ -818,7 +1346,8 @@
         sc,
         st,
         ratio,
-        resonanceFactor
+        resonanceFactor,
+        ...weibull
       };
     }
 
@@ -828,7 +1357,13 @@
       current = calculate();
 
       els.errorText.textContent = current.error;
+      els.regionWindLabel.textContent = `${current.regionName} ${current.meanWindRef.toFixed(1)} m/s`;
+      els.roughnessLabel.textContent = `α ${current.alpha.toFixed(2)}`;
       els.vcrValue.textContent = current.vcr.toFixed(2);
+      els.tcrValue.textContent = formatHours(current.tcr);
+      els.cScaleValue.textContent = current.cScale.toFixed(2);
+      els.screeningValue.textContent = current.screening.label;
+      els.screeningDetail.textContent = current.screening.detail;
       els.ampValue.textContent = current.amp.toFixed(3);
       els.liveAmpValue.textContent = current.liveAmp.toFixed(3);
       els.fnValue.textContent = current.fn.toFixed(2);
@@ -836,6 +1371,16 @@
       els.stValue.textContent = `St ${current.st.toFixed(3)}`;
       els.ratioValue.textContent = `${current.ratio.toFixed(2)} × Vcr`;
       els.shapeChip.textContent = current.label;
+      els.tcrMetric.className = `metric ${current.screening.key}`;
+      els.screeningMetric.className = `metric screening ${current.screening.key}`;
+      els.screeningSummary.className = `screening-summary ${current.screening.key}`;
+      els.screeningTitle.textContent = current.screening.label;
+      els.screeningText.textContent = current.screening.text;
+      els.meanHeightValue.textContent = `${current.meanWindHeight.toFixed(2)} m/s`;
+      els.heightFactorValue.textContent = current.heightFactor.toFixed(3);
+      els.exceedProbValue.textContent = formatPercent(current.exceedProb);
+      els.bandRangeValue.textContent = `${current.vLow.toFixed(1)}~${current.vHigh.toFixed(1)}`;
+      els.reportText.textContent = reportText(current);
 
       const scaleMax = Math.max(45, current.wind, current.vcr * 1.2);
       const windPct = Math.min(100, Math.max(0, current.wind / scaleMax * 100));
@@ -874,34 +1419,35 @@
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    function drawEndSupport(ctx, x, y, type, position) {
+    function drawEndSupport(ctx, x, y, type, position, supportScale = 1) {
+      const s = supportScale;
       ctx.save();
       ctx.strokeStyle = "#334047";
       ctx.fillStyle = "#ffffff";
       ctx.lineWidth = 2;
       if (type === "fixed") {
         ctx.fillStyle = "#dfe7eb";
-        ctx.fillRect(x - 78, y - 10, 156, 20);
-        ctx.strokeRect(x - 78, y - 10, 156, 20);
-        const hatchY = position === "top" ? y - 10 : y + 10;
+        ctx.fillRect(x - 78 * s, y - 10 * s, 156 * s, 20 * s);
+        ctx.strokeRect(x - 78 * s, y - 10 * s, 156 * s, 20 * s);
+        const hatchY = position === "top" ? y - 10 * s : y + 10 * s;
         const hatchDir = position === "top" ? -1 : 1;
-        for (let i = -70; i <= 70; i += 18) {
+        for (let i = -70 * s; i <= 70 * s; i += 18 * s) {
           ctx.beginPath();
           ctx.moveTo(x + i, hatchY);
-          ctx.lineTo(x + i + 12, hatchY + hatchDir * 16);
+          ctx.lineTo(x + i + 12 * s, hatchY + hatchDir * 16 * s);
           ctx.stroke();
         }
       } else if (type === "pin") {
         const dir = position === "top" ? -1 : 1;
         ctx.beginPath();
-        ctx.moveTo(x, y + dir * 15);
-        ctx.lineTo(x - 28, y + dir * 66);
-        ctx.lineTo(x + 28, y + dir * 66);
+        ctx.moveTo(x, y + dir * 15 * s);
+        ctx.lineTo(x - 28 * s, y + dir * 66 * s);
+        ctx.lineTo(x + 28 * s, y + dir * 66 * s);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
         ctx.beginPath();
-        ctx.arc(x, y + dir * 14, 8, 0, Math.PI * 2);
+        ctx.arc(x, y + dir * 14 * s, 8 * s, 0, Math.PI * 2);
         ctx.fillStyle = "#dfe7eb";
         ctx.fill();
         ctx.stroke();
@@ -955,12 +1501,13 @@
       const bottom = h * 0.80;
       const centerX = w * 0.46;
       const [topSupport, bottomSupport] = supportTypes(c.bc);
+      const supportScale = Math.max(0.58, Math.min(1, h / 420));
       const phase = Math.sin(time * 0.006 * (0.45 + Math.min(2.5, c.wind / 10)));
       const visualAmp = c.valid ? Math.min(88, Math.max(0, c.liveAmp * 24)) : 0;
       const stroke = c.shape === "circ" ? Math.max(16, Math.min(42, c.B * 1200)) : Math.max(14, Math.min(46, Math.max(c.B, c.D) * 760));
 
-      if (topSupport !== "free") drawEndSupport(ctx, centerX, top - stroke * 0.68, topSupport, "top");
-      if (bottomSupport !== "free") drawEndSupport(ctx, centerX, bottom + stroke * 0.68, bottomSupport, "bottom");
+      if (topSupport !== "free") drawEndSupport(ctx, centerX, top - stroke * 0.68, topSupport, "top", supportScale);
+      if (bottomSupport !== "free") drawEndSupport(ctx, centerX, bottom + stroke * 0.68, bottomSupport, "bottom", supportScale);
 
       ctx.save();
       ctx.lineWidth = stroke;
