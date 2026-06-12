@@ -1151,7 +1151,7 @@
     }
 
     function reportText(c) {
-      return `본 검토에서는 ${c.regionName} 평균풍속 ${c.meanWindRef.toFixed(1)} m/s를 기준높이 ${c.refHeight.toFixed(1)} m에서 대상높이 ${c.targetHeight.toFixed(1)} m로 보정한 후, 와이블분포(k=${c.k.toFixed(2)}, c=${c.cScale.toFixed(2)} m/s)를 적용하여 임계풍속 주변 ±${c.bandwidthPercent.toFixed(1)}% 공진대역(${c.vLow.toFixed(2)}~${c.vHigh.toFixed(2)} m/s)에 해당하는 연간 시간 Tcr=${formatHours(c.tcr)} h/year를 산정하였다. 산정된 시간은 실제 와류진동 발생시간이 아니라 공진대역 도달 가능성에 대한 1차 스크리닝 지표이며, 본 기준에서는 ${c.screening.label}로 분류된다.`;
+      return `본 검토에서는 ${c.regionName} 평균풍속 ${c.meanWindRef.toFixed(1)} m/s를 기준높이 ${c.refHeight.toFixed(1)} m에서 대상높이 ${c.targetHeight.toFixed(1)} m로 보정한 후, 와이블분포(k=${c.k.toFixed(2)}, c=${c.cScale.toFixed(2)} m/s)를 적용하여 임계풍속 주변 ±${c.bandwidthPercent.toFixed(1)}% 공진대역(${c.vLow.toFixed(2)}~${c.vHigh.toFixed(2)} m/s)에 해당하는 연간 시간 Tcr=${formatHours(c.tcr)} h/year를 산정하였다. 산정된 시간은 공진대역 도달 가능성에 대한 1차 스크리닝 지표이며, 본 기준에서는 ${c.screening.label}로 분류된다.`;
     }
 
     const els = {
