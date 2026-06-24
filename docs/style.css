@@ -1,0 +1,275 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --line: #d8dee9;
+  --text: #172033;
+  --muted: #5c667a;
+  --accent: #f59e0b;
+  --cat: #2563eb;
+  --dog: #f59e0b;
+  --ok: #15803d;
+  --warn: #b45309;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    "Malgun Gothic",
+    "Apple SD Gothic Neo",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.workspace {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.status {
+  min-width: 112px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--warn);
+  font-size: 13px;
+  text-align: center;
+}
+
+.status.ready {
+  color: var(--ok);
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(320px, 0.9fr);
+  gap: 18px;
+}
+
+.upload-panel,
+.result-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 18px;
+}
+
+.upload-panel {
+  position: relative;
+  padding-bottom: 58px;
+}
+
+.drop-zone {
+  display: grid;
+  place-items: center;
+  min-height: 112px;
+  border: 1px dashed #aab4c5;
+  border-radius: 8px;
+  background: #fbfcff;
+  cursor: pointer;
+  text-align: center;
+}
+
+.drop-zone:hover,
+.drop-zone:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.drop-zone.dragging {
+  border-color: var(--accent);
+  background: #fff7ed;
+}
+
+#imageInput {
+  display: none;
+}
+
+.upload-button {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  padding: 7px 10px;
+  border: 1px solid #aab4c5;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #334155;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.upload-button:hover {
+  border-color: #64748b;
+  background: #eef2f7;
+}
+
+.drop-title {
+  display: block;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.drop-detail {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.preview-frame {
+  margin: 18px 0 0;
+}
+
+#previewCanvas {
+  display: block;
+  width: 100%;
+  max-width: 512px;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #eef2f7;
+}
+
+figcaption {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.result-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.result-header span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.result-header strong {
+  font-size: 24px;
+}
+
+.bars {
+  display: grid;
+  gap: 18px;
+  margin: 28px 0;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 64px;
+  align-items: center;
+  gap: 12px;
+}
+
+.class-name {
+  font-weight: 700;
+}
+
+.bar-track {
+  height: 24px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #edf1f7;
+}
+
+.bar-fill {
+  width: 0%;
+  height: 100%;
+  transition: width 180ms ease;
+}
+
+.bar-fill.cat {
+  background: var(--cat);
+}
+
+.bar-fill.dog {
+  background: var(--dog);
+}
+
+.value {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.meta strong {
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    padding: 18px;
+  }
+
+  .topbar,
+  .panel-grid {
+    display: block;
+  }
+
+  .status {
+    display: inline-block;
+    margin-top: 14px;
+  }
+
+  .result-panel {
+    margin-top: 18px;
+  }
+
+  .bar-row {
+    grid-template-columns: 44px 1fr 58px;
+  }
+}
